@@ -1,4 +1,5 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import "./mylistings.css";
 import { Link } from "react-router-dom";
 import { FiEdit, FiTrash2, FiMapPin } from "react-icons/fi";
@@ -56,19 +57,19 @@ export default function MyListings() {
             <div className="listing-icon">📦</div>
             <div className="listing-info">
               <h3>{listing.name}</h3>
-              <p>{listing.brand} • Model: {listing.model}</p>
+              <p>{listing.brand} • Model: {listing.model_number}</p>
               <div className="listing-tags">
                 <span className="tag">{listing.category}</span>
                 <span className="qty">Qty: {listing.quantity}</span>
               </div>
               <div className="listing-meta">
                 <span><FiMapPin /> {listing.location}</span>
-                <span>Listed {new Date(listing.data_listed).toLocaleDataString()}</span>
+                <span>Listed {new Date(listing.date_listed).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
           <div className="listing-actions">
-            <span className="status available">{listing.status}</span>
+            <span className="status available">{listing.availability}</span>
             <div className="action-buttons">
               <button className="edit"><FiEdit /> Edit</button>
               <button className="delete"><FiTrash2 /> Delete</button>

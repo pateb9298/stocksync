@@ -79,6 +79,37 @@ def add_part():
 
 @app.route('/get_parts', methods=['GET'])
 def get_parts():
+    parts = Product.query.order_by(Product.id.desc()).all()
+    if not parts:
+        return jsonify({})  # return empty object if no parts exist
+
+    result = []
+    for part in parts:
+        result.append({
+            "id": part.id,
+            "part_name": part.part_name,
+            "category": part.category,
+            "model_number": part.model_number,
+            "manufacturer": part.manufacturer,
+            "condition": part.condition,
+            "quantity": part.quantity,
+            "specs": part.specs,
+            "listing_title": part.listing_title,
+            "listing_type": part.listing_type,
+            "price": part.price,
+            "currency": part.currency,
+            "location": part.location,
+            "availability": part.availability,
+            "notes": part.notes
+        })
+    return jsonify(result)
+    # conn = get_db_connection()
+    # cursor = conn.cursor(dictionary=True)
+    # cursor.execute("SELECT * FROM products ORDER BY data_listed DESC LIMIT 1")
+    # part = cursor.fetchone()
+    # cursor.close()
+    # conn.close()
+    # return jsonify(part)
     
 # Route for the home page
 # Renders index.html template when someone visits localhost:5000/
