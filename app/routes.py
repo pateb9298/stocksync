@@ -77,41 +77,14 @@ def add_part():
     db.session.commit() # Commit changes to the database
     return {"message": "Part added sucessfully", "id": new_part.id}, 201 # Redirect back to home pag
 
-# API route to handle JSON requests from React (localhost:3000)
-
-# @app.route('/api/products', methods=['POST'])
-# # Get JSON data from the request body
-# def add_product():
-#     data = request.json
-#     id = data.get("id")
-#     name = data.get("name")
-#     stock = data.get("stock")
-
-#     # Validate JSON data
-#     if not id or not name or stock is None:
-#         # Return error as JSON if fields are missing
-#         #jsonify is a Flask helper function that converts a Python dictionary into a JSON response that the client (like your React app) can understand.
-#         return jsonify({"error": "Missing fields"}), 400
-
-#     # Create a Product and add to database
-#     p = Product(id=id, name=name, stock=stock)
-#     db.session.add(p)
-#     db.session.commit()
-
-#     # Return a success message in JSON format
-#     return jsonify({"message": "Product added successfully"}), 201
-
-
+@app.route('/get_parts', methods=['GET'])
+def get_parts():
+    
 # Route for the home page
 # Renders index.html template when someone visits localhost:5000/
 @app.route('/')
 def index():
     return render_template('index.html')
-
-# Run the Flask app
-# debug=True means the server reloads automatically when you change code
-# if __name__ == "__main__":
-#     app.run(debug=True)
 
 
 
