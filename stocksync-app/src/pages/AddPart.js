@@ -28,19 +28,27 @@ export default function AddPart() {
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...formData,
+        quantity: Number(formData.quantity),
+        price: Number(formData.price),
+      };
+
       const res = await fetch("http://localhost:5000/add_part", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Submission failed");
       alert(data.message);
     } catch (err) {
       console.error(err);
-      alert("Error submitting part");
+      alert("Error submitting part: " + err.message);
     }
   };
+
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);

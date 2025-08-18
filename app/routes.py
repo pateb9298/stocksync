@@ -15,7 +15,7 @@ CORS(app, origins=["http://localhost:3000"])
 
 #Defines a Product model for SQLALchemy and tells the database how the product table should look
 class Product(db.Model):
-    id = db.Column(db.Integer, primary_key = True) 
+    id = db.Column(db.Integer, primary_key=True) 
     part_name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50), nullable=True)
     model_number = db.Column(db.String(100), nullable=True)
@@ -38,6 +38,7 @@ class Product(db.Model):
 # Create all tables in the database if they don’t already exist
 # This makes sure the Product table is actually created
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 # Route to handle form submissions from your HTML (localhost:5000) FLASK
@@ -78,27 +79,27 @@ def add_part():
 
 # API route to handle JSON requests from React (localhost:3000)
 
-@app.route('/api/products', methods=['POST'])
-# Get JSON data from the request body
-def add_product():
-    data = request.json
-    id = data.get("id")
-    name = data.get("name")
-    stock = data.get("stock")
+# @app.route('/api/products', methods=['POST'])
+# # Get JSON data from the request body
+# def add_product():
+#     data = request.json
+#     id = data.get("id")
+#     name = data.get("name")
+#     stock = data.get("stock")
 
-    # Validate JSON data
-    if not id or not name or stock is None:
-        # Return error as JSON if fields are missing
-        #jsonify is a Flask helper function that converts a Python dictionary into a JSON response that the client (like your React app) can understand.
-        return jsonify({"error": "Missing fields"}), 400
+#     # Validate JSON data
+#     if not id or not name or stock is None:
+#         # Return error as JSON if fields are missing
+#         #jsonify is a Flask helper function that converts a Python dictionary into a JSON response that the client (like your React app) can understand.
+#         return jsonify({"error": "Missing fields"}), 400
 
-    # Create a Product and add to database
-    p = Product(id=id, name=name, stock=stock)
-    db.session.add(p)
-    db.session.commit()
+#     # Create a Product and add to database
+#     p = Product(id=id, name=name, stock=stock)
+#     db.session.add(p)
+#     db.session.commit()
 
-    # Return a success message in JSON format
-    return jsonify({"message": "Product added successfully"}), 201
+#     # Return a success message in JSON format
+#     return jsonify({"message": "Product added successfully"}), 201
 
 
 # Route for the home page
