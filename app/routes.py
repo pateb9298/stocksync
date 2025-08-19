@@ -114,10 +114,25 @@ def get_parts():
 @app.route('/search_item', methods=['POST'])
 def search_item():
     data = request.get_json()
-    term = data["search_term"]
-    if not term:
-        return jsonify([])
-    searched = Product.query.filter(Product.part_name.ilike(f"%{term}%")).all()
+    term = data.get("search_term", "").strip()
+    category = data.get("category", "").strip()
+    condition = data.get("condition", "").strip()
+    listing_type = data.get("listing_type", "").strip()
+    location = data.get("location", "").strip()
+    
+    query = Product.query
+    if term:
+        query = query.filter(Product.part_name.ilike(f"%{term}%"))
+    if category:
+        query = query.filter(Product.category.ilike(f"%{category}%"))
+    if condition:
+        query = query.filter(Product.condition.ilike(f"%{condition}%"))
+    if listing_type:
+        query = query.filter(Product.listing_type.ilike(f"%{listing_type}%"))
+    if location:
+        query = query.filter(Product.location.ilike(f"%{location}%"))
+
+    products = query.all()
     results = [
         {
             "id": p.id,
@@ -134,10 +149,19 @@ def search_item():
             "date_listed": p.date_listed.isoformat() if hasattr(p, "date_listed") else None
 
         }
-        for p in searched
+        for p in products
     ]
     return jsonify(results)
 
+
+@app.route('/delete_part', methods=["POST"])
+def delete_part():
+    data = request.get_json()
+    part_id = data.get("id")
+
+    Product.query.filter_by(id=part_id).delete()
+    db.session.commit()
+    return {"message": "Part deleted successfully"}, 200
 
 # Route for the home page
 # Renders index.html template when someone visits localhost:5000/

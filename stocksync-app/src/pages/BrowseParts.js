@@ -8,6 +8,12 @@ import axios from "axios";
 export default function BrowseParts() {
   const [listings, setListings] = useState([]); // always an array
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    category: "",
+    condition: "",
+    listing_type: "",
+    location: "",
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -19,7 +25,7 @@ export default function BrowseParts() {
     setLoading(true);
     try {
       const res = await axios.get("http://localhost:5000/get_parts");
-      setListings(res.data || []); // fallback to empty array
+      setListings(res.data || []);
     } catch (err) {
       console.error("Error fetching listings:", err);
       setListings([]);
@@ -27,24 +33,26 @@ export default function BrowseParts() {
     setLoading(false);
   };
 
-  // Search parts by term
+  // Handle search + filters
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      fetchListings(); // reset to all listings if search is empty
-      return;
-    }
-
     setLoading(true);
     try {
       const res = await axios.post("http://localhost:5000/search_item", {
         search_term: searchTerm,
+        ...filters,
       });
-      setListings(res.data || []); // ensure array
+      setListings(res.data || []);
     } catch (err) {
       console.error("Error searching parts:", err);
       setListings([]);
     }
     setLoading(false);
+  };
+
+  // Update filter values
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -76,37 +84,46 @@ export default function BrowseParts() {
 
           <div className="filter-group">
             <label>Category</label>
-            <select>
-              <option>All Categories</option>
-              <option>Electronics</option>
-              <option>Auto</option>
-              <option>Industrial</option>
+            <select name="category" value={filters.category} onChange={handleFilterChange}>
+              <option value="">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Automotive">Automotive</option>
+              <option value="Industrial">Industrial</option>
             </select>
           </div>
 
           <div className="filter-group">
             <label>Condition</label>
-            <select>
-              <option>All Conditions</option>
-              <option>New</option>
-              <option>Used</option>
+            <select name="condition" value={filters.condition} onChange={handleFilterChange}>
+              <option value="">All Conditions</option>
+              <option value="New">New</option>
+              <option value="Used">Used</option>
+              <option value="Refurbished">Refurbished</option>
             </select>
           </div>
 
           <div className="filter-group">
             <label>Listing Type</label>
-            <select>
-              <option>All Types</option>
-              <option>For Sale</option>
-              <option>For Trade</option>
-              <option>Free</option>
+            <select name="listing_type" value={filters.listing_type} onChange={handleFilterChange}>
+              <option value="">All Types</option>
+              <option value="For Sale">For Sale</option>
+              <option value="For Trade">For Trade</option>
+              <option value="Wanted">Wanted</option>
             </select>
           </div>
 
           <div className="filter-group">
             <label>Location</label>
-            <input type="text" placeholder="Enter city or country" />
+            <input
+              type="text"
+              name="location"
+              placeholder="Enter city or country"
+              value={filters.location}
+              onChange={handleFilterChange}
+            />
           </div>
+
+          <button className="btn primary" onClick={handleSearch}>Apply Filters</button>
         </aside>
 
         {/* Parts Grid */}

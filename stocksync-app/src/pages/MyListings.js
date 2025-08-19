@@ -1,10 +1,8 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./mylistings.css";
 import { Link } from "react-router-dom";
 import { FiEdit, FiTrash2, FiMapPin } from "react-icons/fi";
 import axios from "axios";
-
 
 export default function MyListings() {
   const [listings, setListings] = useState([]);
@@ -16,20 +14,36 @@ export default function MyListings() {
   const fetchListings = async () => {
     try {
       const res = await axios.get("http://localhost:5000/get_parts");
-      setListings(res.data);
+      // Ensure res.data is an array
+      setListings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching listings:", err);
+      setListings([]);
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this listing?")) return;
+
+    try {
+      await axios.post("http://localhost:5000/delete_part", { id });
+      // Remove the deleted listing from state to update UI
+      setListings((prev) => prev.filter((listing) => listing.id !== id));
+    } catch (err) {
+      console.error("Error deleting listing:", err);
+      alert("Failed to delete listing.");
+    }
+  };
+
+  const totalValue = Array.isArray(listings)
+    ? listings.reduce((sum, item) => sum + Number(item.price || 0), 0)
+    : 0;
+
   return (
     <div className="mylistings-container">
-
-      {/* Page Title */}
       <h1 className="page-title">My Listings</h1>
-      <p className="page-subtitle">Manage your 9 spare part listings</p>
+      <p className="page-subtitle">Manage your {listings.length} spare part listings</p>
 
-      {/* Header Stats */}
       <div className="stats-header">
         <div className="stat-box">
           <p>AVAILABLE PARTS</p>
@@ -37,7 +51,7 @@ export default function MyListings() {
         </div>
         <div className="stat-box">
           <p>TOTAL VALUE</p>
-          <h2>${listings.reduce((sum, item) => sum + Number(item.price || 0), 0).toFixed(2)}</h2>
+          <h2>${totalValue.toFixed(2)}</h2>
         </div>
         <div className="stat-box">
           <p>PARTS SOLD</p>
@@ -46,38 +60,41 @@ export default function MyListings() {
         <Link to="/add-part" className="add-btn">+ Add New Listing</Link>
       </div>
 
-      {/* Listings Section */}
       <div className="listings-section">
         <h2>Your Listings</h2>
 
-        {/* Listing Card */}
-        {listings.map((listing) => (
-        <div className="listing-card" key={listing.id}>
-          <div className="listing-left">
-            <div className="listing-icon">📦</div>
-            <div className="listing-info">
-              <h3>{listing.name}</h3>
-              <p>{listing.brand} • Model: {listing.model_number}</p>
-              <div className="listing-tags">
-                <span className="tag">{listing.category}</span>
-                <span className="qty">Qty: {listing.quantity}</span>
+        {listings.length === 0 ? (
+          <p>No listings found.</p>
+        ) : (
+          listings.map((listing) => (
+            <div className="listing-card" key={listing.id}>
+              <div className="listing-left">
+                <div className="listing-icon">📦</div>
+                <div className="listing-info">
+                  <h3>{listing.name || listing.part_name || "N/A"}</h3>
+                  <p>{listing.brand || listing.manufacturer || "N/A"} • Model: {listing.model_number || "N/A"}</p>
+                  <div className="listing-tags">
+                    <span className="tag">{listing.category || "N/A"}</span>
+                    <span className="qty">Qty: {listing.quantity || 0}</span>
+                  </div>
+                  <div className="listing-meta">
+                    <span><FiMapPin /> {listing.location || "N/A"}</span>
+                    <span>Listed {listing.date_listed ? new Date(listing.date_listed).toLocaleDateString() : "N/A"}</span>
+                  </div>
+                </div>
               </div>
-              <div className="listing-meta">
-                <span><FiMapPin /> {listing.location}</span>
-                <span>Listed {new Date(listing.date_listed).toLocaleDateString()}</span>
+              <div className="listing-actions">
+                <span className="status available">{listing.availability || "N/A"}</span>
+                <div className="action-buttons">
+                  <button className="edit"><FiEdit /> Edit</button>
+                  <button className="delete" onClick={() => handleDelete(listing.id)}>
+                    <FiTrash2 /> Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="listing-actions">
-            <span className="status available">{listing.availability}</span>
-            <div className="action-buttons">
-              <button className="edit"><FiEdit /> Edit</button>
-              <button className="delete"><FiTrash2 /> Delete</button>
-            </div>
-          </div>
-        </div>
-))}
-
+          ))
+        )}
       </div>
     </div>
   );
