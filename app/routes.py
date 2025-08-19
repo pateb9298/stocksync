@@ -2,13 +2,18 @@
 
 #Import Flask classes and helpers
 from flask import render_template, request, flash, redirect, jsonify
+from app.models import User
+from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
+
+
 
 #CORS allows the frontend (React on port 3000) to communicate with this backend
 from flask_cors import CORS
 
 #Import the Flask app and db object from your __init__.py
 from app import app, db
-
+app.config["JWT_SECRET_KEY"] = "super-secret-key"  
+jwt = JWTManager(app)
 #Initialize CORS for this app, allowing requests from React running on localhost:3000
 CORS(app, origins=["http://localhost:3000"])
 
@@ -43,6 +48,46 @@ with app.app_context():
 
 # Route to handle form submissions from your HTML (localhost:5000) FLASK
 #Users submit via a POST request to /add_part
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    if not username or not password or not email:
+        return {"error": "Username, password, and email are required"}, 400
+    
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return {"error": "Username already exists. Please log in"}, 400
+    
+    new_user = User(
+        username=username,  
+        email=email,
+        first_name=first_name,
+        last_name=last_name
+    )   
+    new_user.setPassword(password)  # Hash the password before storing
+    # Add the new user to the database
+    db.session.add(new_user)        
+    db.session.commit()
+    return {"message": "User created successfully"}, 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.checkPassword(password):
+        return {"error": "Invalid username or password"}, 401
+    
+    access_token = create_access_token(identity=user.id)
+    return jsonify(access_token=access_token), 200
 
 
 @app.route('/add_part', methods = ['POST'])
