@@ -111,6 +111,12 @@ def get_parts():
     # conn.close()
     # return jsonify(part)
     
+@app.route('search_item', methods=['GET'])
+def search_item():
+    searched = Product.query()
+    
+
+
 # Route for the home page
 # Renders index.html template when someone visits localhost:5000/
 @app.route('/')

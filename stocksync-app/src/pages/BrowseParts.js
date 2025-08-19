@@ -1,16 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { FaFilter } from "react-icons/fa";
 import PartCard from "../components/PartCard.js";
 import "./browseparts.css";
+import axios from "axios";
 
 export default function BrowseParts() {
+  const [listings, setListings] = useState([]);
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
+
+  const fetchListings = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/get_parts");
+      setListings(res.data); // res.data is an array of all parts
+    } catch (err) {
+      console.error("Error fetching listings:", err);
+    }
+  };
+
   return (
     <div className="browse-parts-container">
       {/* Header */}
       <div className="browse-parts-header">
         <h1>Browse Spare Parts</h1>
-        <p>Discover 6+ spare parts from companies worldwide</p>
+        <p>Discover {listings.length} spare parts from companies worldwide</p>
       </div>
 
       {/* Search Bar */}
@@ -32,7 +48,6 @@ export default function BrowseParts() {
             <FaFilter /> Filters
           </h3>
 
-          {/* Category */}
           <div className="filter-group">
             <label>Category</label>
             <select>
@@ -43,7 +58,6 @@ export default function BrowseParts() {
             </select>
           </div>
 
-          {/* Condition */}
           <div className="filter-group">
             <label>Condition</label>
             <select>
@@ -53,7 +67,6 @@ export default function BrowseParts() {
             </select>
           </div>
 
-          {/* Listing Type */}
           <div className="filter-group">
             <label>Listing Type</label>
             <select>
@@ -64,7 +77,6 @@ export default function BrowseParts() {
             </select>
           </div>
 
-          {/* Location */}
           <div className="filter-group">
             <label>Location</label>
             <input type="text" placeholder="Enter city or country" />
@@ -74,7 +86,7 @@ export default function BrowseParts() {
         {/* Parts Grid */}
         <main className="browse-parts-grid">
           <div className="grid-header">
-            <p>6 Parts Found</p>
+            <p>{listings.length} Parts Found</p>
             <select>
               <option>Newest First</option>
               <option>Price: Low to High</option>
@@ -83,51 +95,20 @@ export default function BrowseParts() {
           </div>
 
           <div className="grid-items">
-            <PartCard
-              title="Medical Grade Power Supply"
-              manufacturer="TDK-Lambda"
-              model="MPS-65-24"
-              price="$125"
-              conditionTags={["medical", "new"]}
-              quantity={8}
-              location="Frankfurt, Germany"
-              company="MedTech Components"
-              date="Aug 9"
-            />
-            <PartCard
-              title="ABB VFD Drive ACS580"
-              manufacturer="ABB"
-              model="ACS580-01-026A-4"
-              price="for trade"
-              conditionTags={["industrial", "used excellent"]}
-              quantity={1}
-              location="Rotterdam, Netherlands"
-              company="Dutch Industrial Exchange"
-              date="Aug 9"
-              featured
-            />
-            <PartCard
-              title="Honeywell Thermostat Controller"
-              manufacturer="Honeywell"
-              model="T6 Pro WiFi"
-              price="$89.99"
-              conditionTags={["hvac", "new"]}
-              quantity={2}
-              location="Berlin, Germany"
-              company="Honeywell Supplies"
-              date="Aug 7"
-            />
-            <PartCard
-              title="Caterpillar Engine Oil Filter"
-              manufacturer="Caterpillar"
-              model="1R-0749"
-              price="$24.5"
-              conditionTags={["industrial", "new"]}
-              quantity={5}
-              location="Detroit, USA"
-              company="HeavyDuty Parts Co."
-              date="Aug 6"
-            />
+            {listings.map((part) => (
+              <PartCard
+                key={part.id}
+                title={part.listing_title || part.part_name}
+                manufacturer={part.manufacturer}
+                model={part.model_number}
+                price={part.price ? `$${part.price}` : part.listing_type}
+                conditionTags={[part.category, part.condition]}
+                quantity={part.quantity}
+                location={part.location}
+                company={part.manufacturer || "N/A"}
+                date={new Date(part.id).toLocaleDateString()} // You can replace with proper date if you add a date field
+              />
+            ))}
           </div>
         </main>
       </div>
