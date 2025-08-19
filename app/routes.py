@@ -111,10 +111,32 @@ def get_parts():
     # conn.close()
     # return jsonify(part)
     
-@app.route('search_item', methods=['GET'])
+@app.route('/search_item', methods=['POST'])
 def search_item():
-    searched = Product.query()
-    
+    data = request.get_json()
+    term = data["search_term"]
+    if not term:
+        return jsonify([])
+    searched = Product.query.filter(Product.part_name.ilike(f"%{term}%")).all()
+    results = [
+        {
+            "id": p.id,
+            "part_name": p.part_name,
+            "listing_title": p.listing_title,
+            "manufacturer": p.manufacturer,
+            "model_number": p.model_number,
+            "price": p.price,
+            "listing_type": p.listing_type,
+            "category": p.category,
+            "condition": p.condition,
+            "quantity": p.quantity,
+            "location": p.location,
+            "date_listed": p.date_listed.isoformat() if hasattr(p, "date_listed") else None
+
+        }
+        for p in searched
+    ]
+    return jsonify(results)
 
 
 # Route for the home page

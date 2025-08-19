@@ -6,19 +6,45 @@ import "./browseparts.css";
 import axios from "axios";
 
 export default function BrowseParts() {
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState([]); // always an array
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchListings();
   }, []);
 
+  // Fetch all parts
   const fetchListings = async () => {
+    setLoading(true);
     try {
       const res = await axios.get("http://localhost:5000/get_parts");
-      setListings(res.data); // res.data is an array of all parts
+      setListings(res.data || []); // fallback to empty array
     } catch (err) {
       console.error("Error fetching listings:", err);
+      setListings([]);
     }
+    setLoading(false);
+  };
+
+  // Search parts by term
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      fetchListings(); // reset to all listings if search is empty
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5000/search_item", {
+        search_term: searchTerm,
+      });
+      setListings(res.data || []); // ensure array
+    } catch (err) {
+      console.error("Error searching parts:", err);
+      setListings([]);
+    }
+    setLoading(false);
   };
 
   return (
@@ -26,7 +52,7 @@ export default function BrowseParts() {
       {/* Header */}
       <div className="browse-parts-header">
         <h1>Browse Spare Parts</h1>
-        <p>Discover {listings.length} spare parts from companies worldwide</p>
+        <p>Discover {listings?.length || 0} spare parts from companies worldwide</p>
       </div>
 
       {/* Search Bar */}
@@ -34,8 +60,10 @@ export default function BrowseParts() {
         <input
           type="text"
           placeholder="Search by part name, model number, manufacturer..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button>
+        <button onClick={handleSearch}>
           <FiSearch /> Search
         </button>
       </div>
@@ -44,9 +72,7 @@ export default function BrowseParts() {
       <div className="browse-parts-main">
         {/* Filters */}
         <aside className="browse-parts-filters">
-          <h3>
-            <FaFilter /> Filters
-          </h3>
+          <h3><FaFilter /> Filters</h3>
 
           <div className="filter-group">
             <label>Category</label>
@@ -86,7 +112,7 @@ export default function BrowseParts() {
         {/* Parts Grid */}
         <main className="browse-parts-grid">
           <div className="grid-header">
-            <p>{listings.length} Parts Found</p>
+            <p>{listings?.length || 0} Parts Found</p>
             <select>
               <option>Newest First</option>
               <option>Price: Low to High</option>
@@ -95,20 +121,26 @@ export default function BrowseParts() {
           </div>
 
           <div className="grid-items">
-            {listings.map((part) => (
-              <PartCard
-                key={part.id}
-                title={part.listing_title || part.part_name}
-                manufacturer={part.manufacturer}
-                model={part.model_number}
-                price={part.price ? `$${part.price}` : part.listing_type}
-                conditionTags={[part.category, part.condition]}
-                quantity={part.quantity}
-                location={part.location}
-                company={part.manufacturer || "N/A"}
-                date={new Date(part.id).toLocaleDateString()} // You can replace with proper date if you add a date field
-              />
-            ))}
+            {loading ? (
+              <p>Loading...</p>
+            ) : listings?.length > 0 ? (
+              listings.map((part) => (
+                <PartCard
+                  key={part.id}
+                  title={part.part_name}
+                  manufacturer={part.manufacturer || "N/A"}
+                  model={part.model_number || "N/A"}
+                  price={part.price ? `$${part.price}` : "N/A"}
+                  conditionTags={[part.category, part.condition].filter(Boolean)}
+                  quantity={part.quantity || 0}
+                  location={part.location || "N/A"}
+                  company={part.manufacturer || "N/A"}
+                  date={part.date_listed ? new Date(part.date_listed).toLocaleDateString() : "N/A"}
+                />
+              ))
+            ) : (
+              <p>No parts found.</p>
+            )}
           </div>
         </main>
       </div>
