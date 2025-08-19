@@ -1,0 +1,167 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f6f8fa;
+}
+
+/* Navbar */
+.navbar {
+  background: white;
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.nav-link {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #2563eb;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  color: white;
+  padding: 40px 30px;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.hero-buttons {
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.btn.primary {
+  background: white;
+  color: #2563eb;
+}
+
+.btn.secondary {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.btn.primary:hover {
+  background: #f1f5f9;
+}
+
+.btn.secondary:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.sub {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.sub.green { color: #16a34a; }
+.sub.purple { color: #9333ea; }
+.sub.orange { color: #ea580c; }
+
+/* Parts Sections */
+.parts-sections {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  padding: 0 20px 30px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.view-all {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.part-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.part-item:last-child {
+  border-bottom: none;
+}
+
+.part-info p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.part-icon {
+  font-size: 1.4rem;
+  margin-right: 10px;
+}
+
+.price {
+  font-weight: bold;
+  color: #16a34a;
+  white-space: nowrap;
+}
