@@ -119,7 +119,6 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
 @app.route('/add_part', methods=['POST'])
 @jwt_required()
 def add_part():
@@ -183,6 +182,22 @@ from flask import send_from_directory
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
+@app.route('/edit_part', methods=['POST'])
+def edit_part():
+    data = request.get_json()
+    part_id = data.get("id")
+    part = Product.query.get(part_id)
+    if not part:
+        return {"error": "Part not found"}, 404
+
+    # Update fields if they are provided in the request
+    for field in ["part_name", "category", "model_number", "manufacturer", "condition", "quantity", "specs", "listing_title", "listing_type", "price", "currency", "location", "availability", "notes"]:
+        if field in data:
+            setattr(part, field, data[field])
+
+    db.session.commit()
+
+    return {"message": "Part updated successfully"}, 200
 
 @app.route('/get_parts', methods=['GET'])
 @jwt_required()

@@ -43,7 +43,10 @@ export default function Dashboard() {
 
   // Filter parts that belong to current user
   const userParts = parts.filter((p) => p.user_id === user.id);
-  const totalInventoryValue = userParts.reduce((sum, p) => sum + (p.price || 0), 0);
+  const totalInventoryValue = userParts.reduce(
+    (sum, p) => sum + (p.price || 0),
+    0
+  );
 
   return (
     <div className="dashboard">
@@ -56,8 +59,12 @@ export default function Dashboard() {
           to buy, sell, and trade industrial spare parts efficiently.
         </p>
         <div className="hero-buttons">
-          <Link to="/add-part" className="btn primary">+ List New Part</Link>
-          <Link to="/browse-parts" className="btn secondary">Browse Parts</Link>
+          <Link to="/add-part" className="btn primary">
+            + List New Part
+          </Link>
+          <Link to="/browse-parts" className="btn secondary">
+            Browse Parts
+          </Link>
         </div>
       </div>
 
@@ -90,16 +97,37 @@ export default function Dashboard() {
         <div className="recent-parts card">
           <div className="section-header">
             <h3>Recent Parts Listed</h3>
-            <Link to="/browse-parts" className="view-all">View All →</Link>
+            <Link to="/browse-parts" className="view-all">
+              View All →
+            </Link>
           </div>
           {userParts.slice(0, 5).map((part) => (
             <div key={part.id} className="part-item">
-              <div className="part-icon">🔧</div>
-              <div className="part-info">
-                <strong>{part.listing_title}</strong>
-                <p>{part.manufacturer} • Model: {part.model_number}</p>
+              {/* Image */}
+              <div className="part-image">
+                {part.image ? (
+                  <img
+                    src={part.image}
+                    alt={part.listing_title || part.part_name || "Part"}
+                  />
+                ) : (
+                  <div className="part-icon">🔧</div>
+                )}
               </div>
-              <span className="price">{part.price ? `$${part.price}` : "for trade"}</span>
+
+              {/* Info */}
+              <div className="part-info">
+                <strong>{part.listing_title || part.part_name || "N/A"}</strong>
+                <p>
+                  {part.manufacturer || "N/A"} • Model:{" "}
+                  {part.model_number || "N/A"}
+                </p>
+              </div>
+
+              {/* Price */}
+              <span className="price">
+                {part.price ? `$${part.price}` : "For Trade"}
+              </span>
             </div>
           ))}
           {userParts.length === 0 && <p>No listings yet.</p>}
