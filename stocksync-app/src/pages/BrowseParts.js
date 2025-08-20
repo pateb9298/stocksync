@@ -6,6 +6,7 @@ import "./browseparts.css";
 import axios from "axios";
 
 export default function BrowseParts() {
+  const token = localStorage.getItem("token");
   const [listings, setListings] = useState([]); // always an array
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -24,7 +25,11 @@ export default function BrowseParts() {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/get_parts");
+      const res = await axios.get("http://localhost:5000/get_parts", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
       setListings(res.data || []);
     } catch (err) {
       console.error("Error fetching listings:", err);

@@ -5,6 +5,7 @@ import { FiEdit, FiTrash2, FiMapPin } from "react-icons/fi";
 import axios from "axios";
 
 export default function MyListings() {
+    const token = localStorage.getItem("token"); // or wherever you store it
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
@@ -12,15 +13,18 @@ export default function MyListings() {
   }, []);
 
   const fetchListings = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/get_parts");
-      // Ensure res.data is an array
-      setListings(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Error fetching listings:", err);
-      setListings([]);
-    }
-  };
+  try {
+    const res = await axios.get("http://localhost:5000/get_parts", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setListings(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    console.error("Error fetching listings:", err);
+    setListings([]);
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this listing?")) return;

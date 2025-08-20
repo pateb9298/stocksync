@@ -166,7 +166,8 @@ def add_part():
 @app.route('/get_parts', methods=['GET'])
 @jwt_required()
 def get_parts():
-    parts = Product.query.order_by(Product.id.desc()).all()
+    current_user_id = get_jwt_identity()
+    parts = Product.query.filter_by(user_id=current_user_id).order_by(Product.id.desc()).all()
     result = []
     for part in parts:
         result.append({
