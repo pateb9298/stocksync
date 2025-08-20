@@ -4,7 +4,8 @@
 from flask import render_template, request, flash, redirect, jsonify
 from app.models import User
 from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
-
+import os
+from werkzeug.utils import secure_filename
 
 
 #CORS allows the frontend (React on port 3000) to communicate with this backend
@@ -37,6 +38,7 @@ class Product(db.Model):
     location = db.Column(db.String(100), nullable=True)
     availability = db.Column(db.String(50), nullable=True)
     notes = db.Column(db.Text, nullable=True)
+    image = db.Column(db.String(200), nullable=True)
 
     #Representation method, useful for debugging 
     def __repr__(self):
@@ -113,12 +115,24 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     return jsonify(access_token=access_token), 200
 
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 @app.route('/add_part', methods=['POST'])
 @jwt_required()
 def add_part():
-    data = request.get_json()
+    data = request.form
     current_user_id = int(get_jwt_identity())
+
+    image_file = request.files.get("image")
+    image_path = None
+    if image_file:
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        image_file.save(image_path)
+
 
     # Ensure required fields are present
     required_fields = ["part_name", "listing_title", "price"]
@@ -155,6 +169,7 @@ def add_part():
         location=data.get("location"),
         availability=data.get("availability"),
         notes=data.get("notes")
+        image=image_path 
     )
 
     db.session.add(new_part)
@@ -186,7 +201,8 @@ def get_parts():
             "currency": part.currency,
             "location": part.location,
             "availability": part.availability,
-            "notes": part.notes
+            "notes": part.notes,
+            "image": part.image if part.image else None
         })
     return jsonify(result)
 

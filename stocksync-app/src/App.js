@@ -7,7 +7,6 @@ import MyListings from "./pages/MyListings.js";
 import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Dashboard from "./pages/Dashboard.js";
-import Messages from "./pages/Messages.js"; // new messaging page
 
 function Header({ loggedIn, setLoggedIn }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,11 +16,6 @@ function Header({ loggedIn, setLoggedIn }) {
     localStorage.removeItem("access_token");
     setLoggedIn(false);
     navigate("/login");
-  };
-
-  const handleMessages = () => {
-    setMenuOpen(false);
-    navigate("/messages");
   };
 
   return (
@@ -45,7 +39,6 @@ function Header({ loggedIn, setLoggedIn }) {
               </div>
               {menuOpen && (
                 <div className="profile-dropdown">
-                  <button onClick={handleMessages}>Messaging</button>
                   <button onClick={handleSignOut}>Sign Out</button>
                 </div>
               )}
@@ -91,7 +84,6 @@ export default function App() {
               <Route path="/add-part" element={<AddPart />} />
               <Route path="/browse-parts" element={<BrowseParts />} />
               <Route path="/my-listings" element={<MyListings />} />
-              <Route path="/messages" element={<Messages />} />
               {/* Redirect login/register if already logged in */}
               <Route path="/login" element={<Navigate to="/dashboard" replace />} />
               <Route path="/register" element={<Navigate to="/dashboard" replace />} />

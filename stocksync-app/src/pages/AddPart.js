@@ -27,30 +27,31 @@ export default function AddPart() {
   };
 
   const handleSubmit = async () => {
-    try {
-      const payload = {
-        ...formData,
-        quantity: Number(formData.quantity),
-        price: Number(formData.price),
-      };
+  try {
+    const payload = new FormData();
 
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/add_part", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`,
-},
-        body: JSON.stringify(payload),
-      });
+    // append all text fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) payload.append(key, value);
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Submission failed");
-      alert(data.message);
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting part: " + err.message);
-    }
-  };
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5000/add_part", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`, // don't set Content-Type manually
+      },
+      body: payload,
+    });
 
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Submission failed");
+    alert(data.message);
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting part: " + err.message);
+  }
+};
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -234,21 +235,44 @@ export default function AddPart() {
 
       {/* Step 3 */}
       {step === 3 && (
-        <div className="form-card">
-          <h2 className="form-title">📷 Photos & Documentation</h2>
+  <div className="form-card">
+    <h2 className="form-title">📷 Photos & Documentation</h2>
 
-          {/* (Photo upload can be added later) */}
+    <div className="upload-box">
+      <div className="upload-content">
+        <span className="upload-icon">📤</span>
+        <span className="upload-title">Upload Product Image</span>
+        <span className="upload-sub">PNG, JPG up to 5MB</span>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+        />
+      </div>
+    </div>
 
-          <div className="form-actions">
-            <button className="btn secondary" onClick={prevStep}>
-              ← Previous Step
-            </button>
-            <button className="btn primary" onClick={handleSubmit}>
-              Submit Listing
-            </button>
+    {formData.image && (
+      <div className="preview-card">
+        <div className="preview-left">
+          <span className="preview-icon">🖼️</span>
+          <div>
+            <div className="preview-title">{formData.image.name}</div>
+            <div className="preview-sub">{(formData.image.size / 1024).toFixed(1)} KB</div>
           </div>
         </div>
-      )}
+      </div>
+    )}
+
+    <div className="form-actions">
+      <button className="btn secondary" onClick={prevStep}>
+        ← Previous Step
+      </button>
+      <button className="btn primary" onClick={handleSubmit}>
+        Submit Listing
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
