@@ -7,7 +7,7 @@ import axios from "axios";
 
 export default function BrowseParts() {
   const token = localStorage.getItem("token");
-  const [listings, setListings] = useState([]); // always an array
+  const [listings, setListings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "",
@@ -25,11 +25,9 @@ export default function BrowseParts() {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/get_parts", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await axios.get("http://localhost:5000/getAll_parts", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setListings(res.data || []);
     } catch (err) {
       console.error("Error fetching listings:", err);
@@ -58,6 +56,27 @@ export default function BrowseParts() {
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Contact seller
+  const handleContact = async (userId, partName) => {
+    try {
+      const res = await axios.post("http://localhost:5000/contact", {
+        user_id: userId,
+      });
+
+      if (res.data?.email) {
+        // Open mail client with subject + body prefilled
+        window.location.href = `mailto:${res.data.email}?subject=Inquiry about ${encodeURIComponent(
+          partName
+        )}&body=Hello,%0D%0A%0D%0AI am interested in your listing for "${partName}". Could you provide more details?`;
+      } else {
+        alert("Seller email not found.");
+      }
+    } catch (err) {
+      console.error("Error contacting seller:", err);
+      alert("Could not contact seller. Try again later.");
+    }
   };
 
   return (
@@ -158,7 +177,9 @@ export default function BrowseParts() {
                   location={part.location || "N/A"}
                   company={part.manufacturer || "N/A"}
                   date={part.date_listed ? new Date(part.date_listed).toLocaleDateString() : "N/A"}
-                  image={part.image} 
+                  image={part.image}
+                  userId={part.user_id} // <-- seller ID
+                  handleContact={handleContact} // <-- pass contact handler
                 />
               ))
             ) : (

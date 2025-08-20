@@ -119,6 +119,17 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+@app.route("/contact", methods = ["POST"])
+def contact():
+    data = request.get_json()
+    user_id = data.get("user_id")
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+    userEmail = User.query.filter_by(id=user_id).first()
+    userEmail = userEmail.email
+    return jsonify({"email": userEmail}), 200
+
+
 @app.route('/add_part', methods=['POST'])
 @jwt_required()
 def add_part():
@@ -204,6 +215,36 @@ def edit_part():
 def get_parts():
     current_user_id = get_jwt_identity()
     parts = Product.query.filter_by(user_id=current_user_id).order_by(Product.id.desc()).all()
+    result = []
+    for part in parts:
+        result.append({
+            "id": part.id,
+            "user_id": part.user_id,  # <-- add this
+            "part_name": part.part_name,
+            "category": part.category,
+            "model_number": part.model_number,
+            "manufacturer": part.manufacturer,
+            "condition": part.condition,
+            "quantity": part.quantity,
+            "specs": part.specs,
+            "listing_title": part.listing_title,
+            "listing_type": part.listing_type,
+            "price": part.price,
+            "currency": part.currency,
+            "location": part.location,
+            "availability": part.availability,
+            "notes": part.notes,
+            "image": f"http://localhost:5000/uploads/{part.image}" if part.image else None
+        })
+    return jsonify(result)
+
+
+
+@app.route('/getAll_parts', methods=['GET'])
+@jwt_required()
+def getAll_parts():
+    current_user_id = get_jwt_identity()
+    parts = Product.query.order_by(Product.id.desc()).all()
     result = []
     for part in parts:
         result.append({

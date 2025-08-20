@@ -13,26 +13,24 @@ export default function PartCard({
   date,
   featured = false,
   image,
+  userId, // ID of the seller
+  handleContact, // function from parent component
 }) {
   return (
-    <div className="bg-white border rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col">
-      {/* Image */}
-      <div className="h-40 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+    <div className="part-card">
+      {/* Image Container */}
+      <div className="image-container">
         {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="object-cover w-full h-full"
-          />
+          <img src={image} alt={title} />
         ) : (
-          <span className="text-gray-400 text-4xl">📦</span>
+          <div className="placeholder-icon">📦</div>
         )}
       </div>
 
-      {/* Card Body */}
-      <div className="p-4 flex flex-col gap-2">
+      {/* Info Section */}
+      <div className="info">
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 text-xs">
+        <div className="tags">
           {featured && (
             <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
               Featured
@@ -52,13 +50,13 @@ export default function PartCard({
         </div>
 
         {/* Title */}
-        <h3 className="font-bold text-lg mt-1">{title}</h3>
-        <p className="text-sm text-gray-500">
+        <h3>{title}</h3>
+        <p>
           {manufacturer} • Model: {model}
         </p>
 
         {/* Location & Date */}
-        <div className="flex justify-between items-center text-xs text-gray-500 mt-2">
+        <div className="meta">
           <span className="flex items-center gap-1">
             <FiMapPin /> {location}
           </span>
@@ -68,19 +66,20 @@ export default function PartCard({
         </div>
 
         {/* Company & Contact */}
-        <div className="flex justify-between items-center mt-3">
+        <div className="company-button">
           <span className="text-sm text-blue-600 font-medium">{company}</span>
-          <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+          <button
+            onClick={() => handleContact(userId, title)}
+            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+          >
             Contact
           </button>
         </div>
 
         {/* Price */}
-        <div className="mt-3 text-lg font-bold">
+        <div className="price">
           <span
-            className={
-              price.startsWith("$") ? "text-green-600" : "text-blue-600"
-            }
+            className={price.startsWith("$") ? "text-green-600" : "text-blue-600"}
           >
             {price}
           </span>

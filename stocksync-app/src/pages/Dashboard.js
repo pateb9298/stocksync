@@ -22,7 +22,7 @@ export default function Dashboard() {
         setUser(userData);
 
         // Fetch all parts
-        const partsRes = await fetch("http://localhost:5000/get_parts", {
+        const partsRes = await fetch("http://localhost:5000/getAll_parts", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!partsRes.ok) throw new Error("Failed to fetch parts");
