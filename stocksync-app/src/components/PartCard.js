@@ -11,19 +11,28 @@ export default function PartCard({
   location,
   company,
   date,
-  featured = false
+  featured = false,
+  image,
 }) {
   return (
-    <div className="bg-white border rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-      {/* Image Placeholder */}
-      <div className="h-32 bg-gray-100 flex items-center justify-center text-gray-400 text-3xl">
-        📦
+    <div className="bg-white border rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col">
+      {/* Image */}
+      <div className="h-40 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="object-cover w-full h-full"
+          />
+        ) : (
+          <span className="text-gray-400 text-4xl">📦</span>
+        )}
       </div>
 
       {/* Card Body */}
-      <div className="p-4 flex flex-col justify-between h-full">
+      <div className="p-4 flex flex-col gap-2">
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-2 text-xs">
+        <div className="flex flex-wrap gap-2 text-xs">
           {featured && (
             <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
               Featured
@@ -43,7 +52,7 @@ export default function PartCard({
         </div>
 
         {/* Title */}
-        <h3 className="font-bold">{title}</h3>
+        <h3 className="font-bold text-lg mt-1">{title}</h3>
         <p className="text-sm text-gray-500">
           {manufacturer} • Model: {model}
         </p>
@@ -58,8 +67,8 @@ export default function PartCard({
           </span>
         </div>
 
-        {/* Company & Button */}
-        <div className="flex justify-between items-center mt-4">
+        {/* Company & Contact */}
+        <div className="flex justify-between items-center mt-3">
           <span className="text-sm text-blue-600 font-medium">{company}</span>
           <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
             Contact

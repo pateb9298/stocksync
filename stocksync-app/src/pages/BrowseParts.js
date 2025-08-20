@@ -158,6 +158,7 @@ export default function BrowseParts() {
                   location={part.location || "N/A"}
                   company={part.manufacturer || "N/A"}
                   date={part.date_listed ? new Date(part.date_listed).toLocaleDateString() : "N/A"}
+                  image={part.image} 
                 />
               ))
             ) : (

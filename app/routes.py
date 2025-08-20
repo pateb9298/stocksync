@@ -115,7 +115,7 @@ def login():
     access_token = create_access_token(identity=str(user.id))
     return jsonify(access_token=access_token), 200
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -168,14 +168,20 @@ def add_part():
         currency=data.get("currency"),
         location=data.get("location"),
         availability=data.get("availability"),
-        notes=data.get("notes")
-        image=image_path 
+        notes=data.get("notes"),
+        image=filename 
     )
 
     db.session.add(new_part)
     db.session.commit()
     return {"message": "Part added successfully", "id": new_part.id}, 201
 
+
+from flask import send_from_directory
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
 @app.route('/get_parts', methods=['GET'])
@@ -202,7 +208,7 @@ def get_parts():
             "location": part.location,
             "availability": part.availability,
             "notes": part.notes,
-            "image": part.image if part.image else None
+            "image": f"http://localhost:5000/uploads/{part.image}" if part.image else None
         })
     return jsonify(result)
 

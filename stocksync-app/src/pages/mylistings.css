@@ -179,3 +179,34 @@
   color: #555;
   margin-bottom: 1.5rem;
 }
+
+.listing-left {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.listing-image {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listing-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

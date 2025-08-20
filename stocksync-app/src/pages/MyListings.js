@@ -5,7 +5,7 @@ import { FiEdit, FiTrash2, FiMapPin } from "react-icons/fi";
 import axios from "axios";
 
 export default function MyListings() {
-    const token = localStorage.getItem("token"); // or wherever you store it
+  const token = localStorage.getItem("token"); // or wherever you store it
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
@@ -13,18 +13,18 @@ export default function MyListings() {
   }, []);
 
   const fetchListings = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/get_parts", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setListings(Array.isArray(res.data) ? res.data : []);
-  } catch (err) {
-    console.error("Error fetching listings:", err);
-    setListings([]);
-  }
-};
+    try {
+      const res = await axios.get("http://localhost:5000/get_parts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setListings(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Error fetching listings:", err);
+      setListings([]);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this listing?")) return;
@@ -46,7 +46,9 @@ export default function MyListings() {
   return (
     <div className="mylistings-container">
       <h1 className="page-title">My Listings</h1>
-      <p className="page-subtitle">Manage your {listings.length} spare part listings</p>
+      <p className="page-subtitle">
+        Manage your {listings.length} spare part listings
+      </p>
 
       <div className="stats-header">
         <div className="stat-box">
@@ -61,7 +63,9 @@ export default function MyListings() {
           <p>PARTS SOLD</p>
           <h2>0</h2>
         </div>
-        <Link to="/add-part" className="add-btn">+ Add New Listing</Link>
+        <Link to="/add-part" className="add-btn">
+          + Add New Listing
+        </Link>
       </div>
 
       <div className="listings-section">
@@ -73,25 +77,54 @@ export default function MyListings() {
           listings.map((listing) => (
             <div className="listing-card" key={listing.id}>
               <div className="listing-left">
-                <div className="listing-icon">📦</div>
+                {/* Image */}
+                <div className="listing-image">
+                  {listing.image ? (
+                    <img
+                      src={listing.image} // make sure this is the correct URL
+                      alt={listing.part_name || "Part Image"}
+                    />
+                  ) : (
+                    <div className="listing-icon">📦</div>
+                  )}
+                </div>
+
                 <div className="listing-info">
                   <h3>{listing.name || listing.part_name || "N/A"}</h3>
-                  <p>{listing.brand || listing.manufacturer || "N/A"} • Model: {listing.model_number || "N/A"}</p>
+                  <p>
+                    {listing.brand || listing.manufacturer || "N/A"} • Model:{" "}
+                    {listing.model_number || "N/A"}
+                  </p>
                   <div className="listing-tags">
                     <span className="tag">{listing.category || "N/A"}</span>
                     <span className="qty">Qty: {listing.quantity || 0}</span>
                   </div>
                   <div className="listing-meta">
-                    <span><FiMapPin /> {listing.location || "N/A"}</span>
-                    <span>Listed {listing.date_listed ? new Date(listing.date_listed).toLocaleDateString() : "N/A"}</span>
+                    <span>
+                      <FiMapPin /> {listing.location || "N/A"}
+                    </span>
+                    <span>
+                      Listed{" "}
+                      {listing.date_listed
+                        ? new Date(listing.date_listed).toLocaleDateString()
+                        : "N/A"}
+                    </span>
                   </div>
                 </div>
               </div>
+
               <div className="listing-actions">
-                <span className="status available">{listing.availability || "N/A"}</span>
+                <span className="status available">
+                  {listing.availability || "N/A"}
+                </span>
                 <div className="action-buttons">
-                  <button className="edit"><FiEdit /> Edit</button>
-                  <button className="delete" onClick={() => handleDelete(listing.id)}>
+                  <button className="edit">
+                    <FiEdit /> Edit
+                  </button>
+                  <button
+                    className="delete"
+                    onClick={() => handleDelete(listing.id)}
+                  >
                     <FiTrash2 /> Delete
                   </button>
                 </div>
