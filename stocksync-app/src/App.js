@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation, Navigate, useNavigate } from "react-router-dom";
 import "./App.css";
 import BrowseParts from "./pages/BrowseParts.js";
 import AddPart from "./pages/AddPart.js";
@@ -7,18 +7,49 @@ import MyListings from "./pages/MyListings.js";
 import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Dashboard from "./pages/Dashboard.js";
+import Messages from "./pages/Messages.js"; // new messaging page
 
-function Header({ loggedIn }) {
+function Header({ loggedIn, setLoggedIn }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem("access_token");
+    setLoggedIn(false);
+    navigate("/login");
+  };
+
+  const handleMessages = () => {
+    setMenuOpen(false);
+    navigate("/messages");
+  };
+
   return (
     <header className="navbar">
       <div className="nav-logo">StockSync</div>
-      <nav>
+      <nav className="nav-links-container">
         {loggedIn ? (
           <>
             <NavLink to="/dashboard" className="nav-link">Dashboard</NavLink>
             <NavLink to="/browse-parts" className="nav-link">Browse Parts</NavLink>
             <NavLink to="/add-part" className="nav-link">List New Parts</NavLink>
             <NavLink to="/my-listings" className="nav-link">My Listings</NavLink>
+
+            {/* Profile circle */}
+            <div className="profile-container">
+              <div
+                className="profile-circle"
+                onClick={() => setMenuOpen(prev => !prev)}
+              >
+                U
+              </div>
+              {menuOpen && (
+                <div className="profile-dropdown">
+                  <button onClick={handleMessages}>Messaging</button>
+                  <button onClick={handleSignOut}>Sign Out</button>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <>
@@ -31,23 +62,23 @@ function Header({ loggedIn }) {
   );
 }
 
-function Layout({ children, loggedIn }) {
+function Layout({ children, loggedIn, setLoggedIn }) {
   const location = useLocation();
   const hideHeader = location.pathname === "/login" || location.pathname === "/register";
   return (
     <>
-      {!hideHeader && <Header loggedIn={loggedIn} />}
+      {!hideHeader && <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} />}
       {children}
     </>
   );
 }
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem("access_token"));
 
   return (
     <Router>
-      <Layout loggedIn={loggedIn}>
+      <Layout loggedIn={loggedIn} setLoggedIn={setLoggedIn}>
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
@@ -60,6 +91,7 @@ export default function App() {
               <Route path="/add-part" element={<AddPart />} />
               <Route path="/browse-parts" element={<BrowseParts />} />
               <Route path="/my-listings" element={<MyListings />} />
+              <Route path="/messages" element={<Messages />} />
               {/* Redirect login/register if already logged in */}
               <Route path="/login" element={<Navigate to="/dashboard" replace />} />
               <Route path="/register" element={<Navigate to="/dashboard" replace />} />
@@ -73,4 +105,3 @@ export default function App() {
     </Router>
   );
 }
-
