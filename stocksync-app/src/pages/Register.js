@@ -6,7 +6,9 @@ export default function Register() {
     username: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    first_name: "",
+    last_name: ""
   });
 
   const handleChange = (e) => {
@@ -27,7 +29,9 @@ export default function Register() {
         body: JSON.stringify({
           username: formData.username,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name
         }),
       });
 
@@ -48,6 +52,12 @@ export default function Register() {
     <div className="auth-container">
       <h1>Create Account</h1>
       <form onSubmit={handleSubmit}>
+        <label>First Name</label>
+        <input name="first_name" value={formData.first_name} onChange={handleChange} required />
+
+        <label>Last Name</label>
+        <input name="last_name" value={formData.last_name} onChange={handleChange} required />
+
         <label>Username</label>
         <input name="username" value={formData.username} onChange={handleChange} required />
 

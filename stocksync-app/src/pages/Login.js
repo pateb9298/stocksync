@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
 
-export default function Login() {
+export default function Login({ setLoggedIn }) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", password: "" });
 
   const handleChange = (e) => {
@@ -18,10 +20,11 @@ export default function Login() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        localStorage.setItem("token", data.access_token); // save JWT
-        alert("Login successful!");
-        window.location.href = "/dashboard"; // redirect
+        localStorage.setItem("token", data.access_token);
+        setLoggedIn(true);
+        navigate("/dashboard");
       } else {
         alert(data.error || "Login failed");
       }
@@ -44,7 +47,13 @@ export default function Login() {
         <button type="submit">Login</button>
       </form>
       <div className="auth-footer">
-        Don't have an account? <a href="/register">Register</a>
+        Don't have an account?{" "}
+        <span
+          onClick={() => navigate("/register")}
+          style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+        >
+          Register
+        </span>
       </div>
     </div>
   );

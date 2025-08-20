@@ -13,7 +13,7 @@ class User(db.Model):
     last_name = db.Column(db.String(50), nullable=True)
     # Passwords should be hashed in production, this is just for simplicity
     # Use libraries like bcrypt or werkzeug.security for hashing    
-    password = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(512), nullable=False)
 
     def setPassword(self, password):
         self.password = generate_password_hash(password)

@@ -1,25 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
 
 export default function Dashboard() {
+  const [user, setUser] = useState(null);
+  const [parts, setParts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        // Fetch current user info
+        const userRes = await fetch("http://localhost:5000/get_user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!userRes.ok) throw new Error("Failed to fetch user");
+        const userData = await userRes.json();
+        setUser(userData);
+
+        // Fetch all parts
+        const partsRes = await fetch("http://localhost:5000/get_parts", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!partsRes.ok) throw new Error("Failed to fetch parts");
+        const allParts = await partsRes.json();
+        setParts(allParts);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading dashboard...</p>;
+  if (!user) return <p>Error loading user data.</p>;
+
+  // Filter parts that belong to current user
+  const userParts = parts.filter((p) => p.user_id === user.id);
+  const totalInventoryValue = userParts.reduce((sum, p) => sum + (p.price || 0), 0);
+
   return (
     <div className="dashboard">
       {/* Hero Section */}
       <div className="hero">
-        <p className="welcome">Welcome back!</p>
+        <p className="welcome">Welcome back, {user.first_name}!</p>
         <h1>Your Spare Parts Marketplace</h1>
         <p className="subtitle">
           Turn excess inventory into revenue. Connect with companies worldwide
           to buy, sell, and trade industrial spare parts efficiently.
         </p>
         <div className="hero-buttons">
-          <Link to="/add-part" className="btn primary">
-            + List New Part
-          </Link>
-          <Link to="/browse-parts" className="btn secondary">
-            Browse Parts
-          </Link>
+          <Link to="/add-part" className="btn primary">+ List New Part</Link>
+          <Link to="/browse-parts" className="btn secondary">Browse Parts</Link>
         </div>
       </div>
 
@@ -27,82 +65,44 @@ export default function Dashboard() {
       <div className="stats">
         <div className="stat-card">
           <p className="label">MY ACTIVE LISTINGS</p>
-          <h2>6</h2>
-          <p className="sub">6 total</p>
+          <h2>{userParts.length}</h2>
+          <p className="sub">{userParts.length} total</p>
         </div>
         <div className="stat-card">
           <p className="label">TOTAL INVENTORY VALUE</p>
-          <h2>$8,434.83</h2>
+          <h2>${totalInventoryValue.toFixed(2)}</h2>
           <p className="sub green">Based on listed prices</p>
         </div>
         <div className="stat-card">
           <p className="label">PARTS IN MARKETPLACE</p>
-          <h2>6</h2>
+          <h2>{parts.length}</h2>
           <p className="sub purple">Updated hourly</p>
         </div>
         <div className="stat-card">
           <p className="label">RECENT ACTIVITY</p>
-          <h2>6</h2>
+          <h2>{parts.slice(0, 5).length}</h2>
           <p className="sub orange">New this week</p>
         </div>
       </div>
 
-      {/* Parts Sections */}
+      {/* Recent Parts */}
       <div className="parts-sections">
-        {/* Recent Parts Listed */}
         <div className="recent-parts card">
           <div className="section-header">
             <h3>Recent Parts Listed</h3>
             <Link to="/browse-parts" className="view-all">View All →</Link>
           </div>
-          <div className="part-item">
-            <div className="part-icon">🔌</div>
-            <div className="part-info">
-              <strong>Medical Grade Power Supply</strong>
-              <p>TDK-Lambda • Model: MPS-65-24</p>
+          {userParts.slice(0, 5).map((part) => (
+            <div key={part.id} className="part-item">
+              <div className="part-icon">🔧</div>
+              <div className="part-info">
+                <strong>{part.listing_title}</strong>
+                <p>{part.manufacturer} • Model: {part.model_number}</p>
+              </div>
+              <span className="price">{part.price ? `$${part.price}` : "for trade"}</span>
             </div>
-            <span className="price">$125</span>
-          </div>
-          <div className="part-item">
-            <div className="part-icon">⚙️</div>
-            <div className="part-info">
-              <strong>ABB VFD Drive ACS580</strong>
-              <p>ABB • Model: ACS580-01-026A-4</p>
-            </div>
-            <span className="price">for trade</span>
-          </div>
-          <div className="part-item">
-            <div className="part-icon">🌡️</div>
-            <div className="part-info">
-              <strong>Honeywell Thermostat Controller</strong>
-              <p>Honeywell • Model: T6 Pro WiFi</p>
-            </div>
-            <span className="price">$89.99</span>
-          </div>
-        </div>
-
-        {/* Featured Parts */}
-        <div className="featured-parts card">
-          <div className="section-header">
-            <h3>Featured Parts</h3>
-            <Link to="/browse-parts" className="view-all">See More →</Link>
-          </div>
-          <div className="part-item">
-            <div className="part-icon">⭐</div>
-            <div className="part-info">
-              <strong>ABB VFD Drive ACS580</strong>
-              <p>ABB</p>
-            </div>
-            <span className="price">for trade</span>
-          </div>
-          <div className="part-item">
-            <div className="part-icon">💻</div>
-            <div className="part-info">
-              <strong>Siemens S7-1200 CPU 1214C</strong>
-              <p>Siemens</p>
-            </div>
-            <span className="price">$285.99</span>
-          </div>
+          ))}
+          {userParts.length === 0 && <p>No listings yet.</p>}
         </div>
       </div>
     </div>

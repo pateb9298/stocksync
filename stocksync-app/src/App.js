@@ -13,15 +13,14 @@ function Header({ loggedIn }) {
     <header className="navbar">
       <div className="nav-logo">StockSync</div>
       <nav>
-        {loggedIn && (
+        {loggedIn ? (
           <>
-            <NavLink to="/" className="nav-link">Dashboard</NavLink>
+            <NavLink to="/dashboard" className="nav-link">Dashboard</NavLink>
             <NavLink to="/browse-parts" className="nav-link">Browse Parts</NavLink>
             <NavLink to="/add-part" className="nav-link">List New Parts</NavLink>
             <NavLink to="/my-listings" className="nav-link">My Listings</NavLink>
           </>
-        )}
-        {!loggedIn && (
+        ) : (
           <>
             <NavLink to="/login" className="nav-link">Login</NavLink>
             <NavLink to="/register" className="nav-link">Register</NavLink>
@@ -50,26 +49,28 @@ export default function App() {
     <Router>
       <Layout loggedIn={loggedIn}>
         <Routes>
-          {!loggedIn ? (
+          {/* Public routes */}
+          <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
+          <Route path="/register" element={<Register setLoggedIn={setLoggedIn} />} />
+
+          {/* Protected routes */}
+          {loggedIn ? (
             <>
-              <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
-              <Route path="/register" element={<Register setLoggedIn={setLoggedIn} />} />
-              {/* Redirect to login if trying to access dashboard or other pages */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </>
-          ) : (
-            <>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/add-part" element={<AddPart />} />
               <Route path="/browse-parts" element={<BrowseParts />} />
               <Route path="/my-listings" element={<MyListings />} />
               {/* Redirect login/register if already logged in */}
-              <Route path="/login" element={<Navigate to="/" replace />} />
-              <Route path="/register" element={<Navigate to="/" replace />} />
+              <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/register" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </>
+          ) : (
+            <Route path="*" element={<Navigate to="/login" replace />} />
           )}
         </Routes>
       </Layout>
     </Router>
   );
 }
+

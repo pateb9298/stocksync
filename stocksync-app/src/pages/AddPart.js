@@ -34,9 +34,11 @@ export default function AddPart() {
         price: Number(formData.price),
       };
 
+      const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:5000/add_part", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`,
+},
         body: JSON.stringify(payload),
       });
 
