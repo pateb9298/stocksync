@@ -215,16 +215,17 @@ def test_get_parts(client):
 def test_contact(client):
     with app.app_context():
         user = User(
-            username="testuser",
-            email="test3@example.com",
-            first_name="Test3",
-            last_name="User3",
+            username="contactuser",
+            email="contact@example.com",
+            first_name="C",
+            last_name="U",
+            password=generate_password_hash("secret")
         )
         db.session.add(user)
-        db.commit()
+        db.session.commit()
         user_id = user.id
 
-    response = client.post("/contact", json={"user.id":user_id})
+    response = client.post("/contact", json={"user_id":user_id})
     assert response.status_code ==200
     assert response.get_json()["email"] == "contact@example.com"
 
