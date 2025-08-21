@@ -266,3 +266,46 @@ def test_search(client):
     data = response.get_json()
     assert isinstance(data, list)
     assert any(part["part_name"] == "Searchable GPU" for part in data)
+
+
+
+def test_delete_part(client):
+    with app.app_context():
+        user = User(
+            username="testuser",
+            email="delete@example.com",
+            first_name="Delete",
+            last_name="User",
+            password=generate_password_hash("deletepass")
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        product = Product(
+            user_id=user.id,
+            part_name="Deletable Part",
+            category="Hardware",
+            model_number="DP-1234",
+            manufacturer="Delete Manufacturer",
+            condition="New",
+            quantity=10,
+            specs="Delete Specs",
+            listing_title="Delete Listing",
+            listing_type="Sell",
+            price=99.99,
+            currency="USD",
+            location="Delete Location",
+            availability="In Stock",
+            notes="Delete Notes",
+            image=None
+        )
+        db.session.add(product)
+        db.session.commit()
+        part_id = product.id
+
+    response = client.post("/delete_part", json={"id": part_id})
+    assert response.status_code == 200
+    assert "Part deleted successfully" in response.get_json()["message"]
+
+    with app.app_context():
+        assert Product.query.get(part_id) is None
