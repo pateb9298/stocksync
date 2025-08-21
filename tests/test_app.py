@@ -5,73 +5,136 @@ import pytest
 from app import app, db
 from app.models import User
 from app.routes import Product
-
-#A fixture is like a setup/teardown method that runs before each test
-#It gives us a temporary client to send HTTP requests to our Flask app
+from werkzeug.security import generate_password_hash
 
 @pytest.fixture
 def client():
-    #Enable testing mode (Flask disables error catching in test mode)
     app.config['TESTING'] = True
-    #Use an in-memory SQLite database (does not touch your real database, resets on each test)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-
-    #Create a test client that simulates sending requests to your app
+    
     with app.test_client() as client:
-        #Push an application context (so Flask knows which app/db we are working with)
         with app.app_context():
             db.create_all()
-        yield client #Hand this test client to the test function
-
-        #After the test is done, clean up
+        yield client
         with app.app_context():
             db.drop_all()
 
-
-from werkzeug.security import generate_password_hash
-
-#TEST#1 Add a new part
 def test_add_part(client):
-    #Create a test user
+    # Create test user
     with app.app_context():
         user = User(
             username="testuser",
-            email="testuser@example.com",      # required
-            first_name="Test",                 # if required
-            last_name="User",                  # if required
+            email="testuser@example.com",
+            first_name="Test",
+            last_name="User",
             password=generate_password_hash("testpass")
         )
         db.session.add(user)
         db.session.commit()
 
+    # Login to get JWT
     login_resp = client.post("/login", json={
         "username": "testuser",
         "password": "testpass"
     })
-
     assert login_resp.status_code == 200
-    token = login_resp.json["access_token"]
+    token = login_resp.get_json()["access_token"]
 
-    #Send a POST request to the /add_part endpoint with JSON data for the new part
+    # POST to /add_part
     response = client.post(
-    "/add_part",
-    json={
+        "/add_part",
+        json={
+            "part_name": "GPU",
+            "category": "Hardware",
+            "model_number": "RTX-4090",
+            "manufacturer": "Nvidia",
+            "condition": "New",
+            "quantity": 5,
+            "specs": "16GB GDDR6X",
+            "listing_title": "High-end Nvidia GPU",
+            "listing_type": "Sell",
+            "price": 1499.99,
+            "currency": "USD",
+            "location": "Warehouse A",
+            "availability": "In Stock",
+            "notes": "Test notes",
+            "image": None
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    # Assert success
+    assert response.status_code == 201
+    data = response.get_json()
+    assert "Part added successfully" in data["message"]
+    assert "id" in data
+
+
+def test_edit_part(client):
+    with app.app_context():
+        # Create test user
+        user = User(
+            username="testuser",
+            email="testuser@example.com",
+            first_name="Test",
+            last_name="User",
+            password=generate_password_hash("testpass")
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Create a part to edit
+        part = Product(
+            user_id=user.id,
+            part_name="Old GPU",
+            category="Hardware",
+            model_number="RTX-3080",
+            manufacturer="Nvidia",
+            condition="Used",
+            quantity=2,
+            specs="10GB GDDR6X",
+            listing_title="Old Nvidia GPU",
+            listing_type="Sell",
+            price=699.99,
+            currency="USD",
+            location="Warehouse B",
+            availability="In Stock",
+            notes="Old notes",
+            image=None
+        )
+        db.session.add(part)
+        db.session.commit()
+        part_id = part.id  # Save this ID to edit later
+
+    # Log in to get JWT
+    login_resp = client.post("/login", json={
+        "username": "testuser",
+        "password": "testpass"
+    })
+    assert login_resp.status_code == 200
+    token = login_resp.get_json()["access_token"]
+
+    # Edit the part
+    response = client.post("/edit_part", json={
+        "id": part_id,
         "part_name": "GPU",
         "category": "Hardware",
+        "model_number": "RTX-4090",
+        "manufacturer": "Nvidia",
         "condition": "New",
         "quantity": 5,
+        "specs": "16GB GDDR6X",
+        "listing_title": "High-end Nvidia GPU",
+        "listing_type": "Sell",
+        "price": 1499.99,
+        "currency": "USD",
         "location": "Warehouse A",
         "availability": "In Stock",
         "notes": "Test notes",
         "image": None
-    },
-    headers={"Authorization": f"Bearer {token}"}
-)
+    }, headers={"Authorization": f"Bearer {token}"})
 
-    #Make sure the request succeeded (HTTP 200)
     assert response.status_code == 200
-    #Convert response JSON into a Python dict
     data = response.get_json()
-    #Check that the response contains the sucess message
-    
-    assert "Part added successfully" in data["message"]
+    assert "Part updated successfully" in data["message"]
+

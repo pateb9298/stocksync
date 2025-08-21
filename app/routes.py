@@ -1,26 +1,21 @@
-#Contains all my Flask routes and sets up the web server
+# Contains all my Flask routes and sets up the web server
 
-#Import Flask classes and helpers
 from flask import render_template, request, flash, redirect, jsonify
 from app.models import User
-from flask_jwt_extended import (JWTManager, create_access_token, jwt_required, get_jwt_identity)
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import os
 from werkzeug.utils import secure_filename
-
-
-#CORS allows the frontend (React on port 3000) to communicate with this backend
 from flask_cors import CORS
-
-#Import the Flask app and db object from your __init__.py
 from app import app, db
-app.config["JWT_SECRET_KEY"] = "super-secret-key"  
+
+# JWT Setup
+app.config["JWT_SECRET_KEY"] = "super-secret-key"
 jwt = JWTManager(app)
-#Initialize CORS for this app, allowing requests from React running on localhost:3000
+
+# Enable CORS for React frontend
 CORS(app, supports_credentials=True, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
 
-
-
-#Defines a Product model for SQLALchemy and tells the database how the product table should look
+# Product Model
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -40,18 +35,14 @@ class Product(db.Model):
     notes = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(200), nullable=True)
 
-    #Representation method, useful for debugging 
     def __repr__(self):
         return f"<Part {self.part_name} ({self.model_number})>"
-    
-# Create all tables in the database if they don’t already exist
-# This makes sure the Product table is actually created
+
+# Ensure tables exist
 with app.app_context():
-    # db.drop_all()
     db.create_all()
 
-# Route to handle form submissions from your HTML (localhost:5000) FLASK
-#Users submit via a POST request to /add_part
+# Routes
 @app.route('/get_user', methods=['GET'])
 @jwt_required()
 def get_user():
@@ -88,10 +79,9 @@ def signup():
         email=email,
         first_name=first_name,
         last_name=last_name
-    )   
-    new_user.setPassword(password)  # Hash the password before storing
-    # Add the new user to the database
-    db.session.add(new_user)        
+    )
+    new_user.setPassword(password)
+    db.session.add(new_user)
     db.session.commit()
     return {"message": "User created successfully"}, 201
 
@@ -111,7 +101,7 @@ def login():
 
     if not user or not user.checkPassword(password):
         return {"error": "Invalid username or password"}, 401
-    
+
     access_token = create_access_token(identity=str(user.id))
     return jsonify(access_token=access_token), 200
 
@@ -119,7 +109,7 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-@app.route("/contact", methods = ["POST"])
+@app.route("/contact", methods=["POST"])
 def contact():
     data = request.get_json()
     user_id = data.get("user_id")
@@ -129,22 +119,21 @@ def contact():
     userEmail = userEmail.email
     return jsonify({"email": userEmail}), 200
 
-
 @app.route('/add_part', methods=['POST'])
 @jwt_required()
 def add_part():
-    data = request.form
+    data = request.get_json()  # <-- changed from request.form
     current_user_id = int(get_jwt_identity())
 
+    # Optional image handling
     image_file = request.files.get("image")
-    image_path = None
+    filename = None
     if image_file:
         filename = secure_filename(image_file.filename)
         image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         image_file.save(image_path)
 
-
-    # Ensure required fields are present
+    # Ensure required fields
     required_fields = ["part_name", "listing_title", "price"]
     for field in required_fields:
         if not data.get(field):
@@ -156,13 +145,13 @@ def add_part():
     except (TypeError, ValueError):
         return {"error": "Price must be a valid number"}, 400
 
-    # Validate quantity (default 1 if not provided)
+    # Validate quantity
     try:
         quantity = int(data.get("quantity", 1))
     except (TypeError, ValueError):
         return {"error": "Quantity must be an integer"}, 400
 
-    # Create the product
+    # Create product
     new_part = Product(
         user_id=current_user_id,
         part_name=data.get("part_name"),
@@ -179,7 +168,7 @@ def add_part():
         location=data.get("location"),
         availability=data.get("availability"),
         notes=data.get("notes"),
-        image=filename 
+        image=filename
     )
 
     db.session.add(new_part)
