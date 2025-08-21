@@ -14,6 +14,7 @@ def client():
     
     with app.test_client() as client:
         with app.app_context():
+            db.drop_all()
             db.create_all()
         yield client
         with app.app_context():
@@ -138,3 +139,53 @@ def test_edit_part(client):
     data = response.get_json()
     assert "Part updated successfully" in data["message"]
 
+def test_get_parts(client):
+
+    with app.app_context():
+        user = User(
+            username="testuser",
+            email="testuser@example.com",
+            first_name="Test",
+            last_name="User",
+            password=generate_password_hash("testpass")
+        )
+
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+
+        product = Product(
+            user_id=user.id,
+            part_name="Test Part",
+            category="Hardware",
+            model_number="TP-1234",
+            manufacturer="Test Manufacturer",
+            condition="New",
+            quantity=10,
+            specs="Test Specs",
+            listing_title="Test Listing",
+            listing_type="Sell",
+            price=99.99,
+            currency="USD",
+            location="Test Location",
+            availability="In Stock",
+            notes="Test Notes",
+            image=None
+        )
+
+        db.session.add(product)
+        db.session.commit()
+
+        login_resp = client.post("/login", json={
+        "username": "testuser",
+        "password": "testpass"
+    })
+    assert login_resp.status_code == 200
+    token = login_resp.get_json()["access_token"]
+
+
+    response = client.get("/get_parts", query_string = {"user_id": user_id}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert any(part["part_name"] == "Test Part" for part in data)
