@@ -228,3 +228,41 @@ def test_contact(client):
     assert response.status_code ==200
     assert response.get_json()["email"] == "contact@example.com"
 
+def test_search(client):
+    with app.app_context():
+        user = User(
+            username="testuser",
+            email="search@example.com",
+            first_name="Search",
+            last_name="User",
+            password = generate_password_hash("searchpass")
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        product = Product(
+            user_id=user.id,
+            part_name="Searchable GPU",
+            category="Hardware",
+            model_number="SP-1234",
+            manufacturer="Search Manufacturer",
+            condition="New",
+            quantity=10,
+            specs="Search Specs",
+            listing_title="Search Listing",
+            listing_type="Sell",
+            price=99.99,
+            currency="USD",
+            location="Search Location",
+            availability="In Stock",
+            notes="Search Notes",
+            image=None
+        )
+        db.session.add(product)
+        db.session.commit()
+
+    response = client.post("/search_item", json = {"search_term": "Searchable"})
+    assert response.status_code ==200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert any(part["part_name"] == "Searchable GPU" for part in data)
