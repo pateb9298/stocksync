@@ -311,6 +311,9 @@ def search_item():
             "condition": p.condition,
             "quantity": p.quantity,
             "location": p.location,
+            "availability": p.availability,
+            "notes": p.notes,
+            "image": f"http://localhost:5000/uploads/{p.image}" if p.image else None
             # "date_listed": p.date_listed.isoformat() if hasattr(p, "date_listed") else None
 
         }

@@ -17,9 +17,7 @@ export default function MyListings() {
   const fetchListings = async () => {
     try {
       const res = await axios.get("http://localhost:5000/get_parts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setListings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -43,14 +41,15 @@ export default function MyListings() {
   const handleEditClick = (listing) => {
     setEditingId(listing.id);
     setEditForm({
-      name: listing.name || listing.part_name || "",
-      brand: listing.brand || listing.manufacturer || "",
+      part_name: listing.part_name || "",
+      manufacturer: listing.manufacturer || "",
       model_number: listing.model_number || "",
       category: listing.category || "",
       quantity: listing.quantity || 0,
       price: listing.price || 0,
       availability: listing.availability || "Available",
       location: listing.location || "",
+      image: listing.image || "", // preserve image
     });
   };
 
@@ -64,13 +63,10 @@ export default function MyListings() {
       await axios.post(
         "http://localhost:5000/edit_part",
         { id, ...editForm },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      // Update local state
       setListings((prev) =>
         prev.map((item) => (item.id === id ? { ...item, ...editForm } : item))
       );
@@ -136,18 +132,18 @@ export default function MyListings() {
                       <label>Part Name</label>
                       <input
                         type="text"
-                        name="name"
-                        value={editForm.name}
+                        name="part_name"
+                        value={editForm.part_name}
                         onChange={handleEditChange}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>Brand</label>
+                      <label>Manufacturer</label>
                       <input
                         type="text"
-                        name="brand"
-                        value={editForm.brand}
+                        name="manufacturer"
+                        value={editForm.manufacturer}
                         onChange={handleEditChange}
                       />
                     </div>
@@ -226,9 +222,9 @@ export default function MyListings() {
                   </div>
                 ) : (
                   <div className="listing-info">
-                    <h3>{listing.name || listing.part_name || "N/A"}</h3>
+                    <h3>{listing.part_name || "N/A"}</h3>
                     <p>
-                      {listing.brand || listing.manufacturer || "N/A"} • Model:{" "}
+                      {listing.manufacturer || "N/A"} • Model:{" "}
                       {listing.model_number || "N/A"}
                     </p>
                     <div className="listing-tags">
@@ -242,9 +238,7 @@ export default function MyListings() {
                       <span>
                         Listed{" "}
                         {listing.date_listed
-                          ? new Date(
-                              listing.date_listed
-                            ).toLocaleDateString()
+                          ? new Date(listing.date_listed).toLocaleDateString()
                           : "N/A"}
                       </span>
                     </div>
