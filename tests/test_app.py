@@ -189,3 +189,42 @@ def test_get_parts(client):
     data = response.get_json()
     assert isinstance(data, list)
     assert any(part["part_name"] == "Test Part" for part in data)
+
+    def test_signup_and_login(client):
+        response = client.post("/signup", json={
+            "username": "newuser",
+            "email": "newuser@example.com",
+            "first_name": "New",
+            "last_name": "User",
+            "password": "password123"
+        })
+
+        assert response.status_code==201
+        assert "User created successfully" in response.get_json()["message"]
+
+        response = client.post("/login", json={
+            "username": "newuser",
+            "password": "password123"
+        })
+
+        assert response.status_code == 200
+        token = response.get_json()["access_token"]
+        assert token is not None
+
+
+def test_contact(client):
+    with app.app_context():
+        user = User(
+            username="testuser",
+            email="test3@example.com",
+            first_name="Test3",
+            last_name="User3",
+        )
+        db.session.add(user)
+        db.commit()
+        user_id = user.id
+
+    response = client.post("/contact", json={"user.id":user_id})
+    assert response.status_code ==200
+    assert response.get_json()["email"] == "contact@example.com"
+
