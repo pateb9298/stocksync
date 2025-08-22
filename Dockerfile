@@ -8,14 +8,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install netcat, curl, gnupg, and other dependencies for Node.js setup
+# Install dependencies needed for Node.js setup and building
 RUN apt-get update && apt-get install -y \
-    netcat-openbsd \
     curl \
     gnupg \
     ca-certificates \
     lsb-release \
     build-essential \
+    netcat-openbsd \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 18 and npm
