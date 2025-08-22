@@ -9,7 +9,7 @@ from flask_cors import CORS
 from app import app, db
 
 # JWT Setup
-app.config["JWT_SECRET_KEY"] = "super-secret-key"
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "dev-secret-key")
 jwt = JWTManager(app)
 
 # Enable CORS for React frontend

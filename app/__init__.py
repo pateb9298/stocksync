@@ -1,7 +1,10 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask
 import os
 from flask_sqlalchemy import SQLAlchemy
 
+load_dotenv()
 
 app = Flask(
     __name__,
@@ -10,13 +13,13 @@ app = Flask(
 )
 
 # Get MySQL credentials from environment variables
-db_user = os.environ.get("MYSQL_USER", "user")
-db_password = os.environ.get("MYSQL_PASSWORD", "userpassword")
-db_host = os.environ.get("MYSQL_HOST", "db")
-db_name = os.environ.get("MYSQL_DATABASE", "stocksync")
+DB_USER = os.environ.get("DB_USER", "root")
+DB_USER = os.environ.get("DB_PASSWORD", "")
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_HOST = os.environ.get("DB_NAME", "stocksync")
 
 # Correct database URI for Docker
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/{db_name}"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_USER}@{DB_HOST}:3306/{DB_HOST}"
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 

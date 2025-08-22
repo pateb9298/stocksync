@@ -4,12 +4,14 @@
 /node_modules
 /.pnp
 .pnp.js
+.env
+pyvenv.cfg
 
 # testing
 /coverage
 
 # production
-/build
+# /build
 
 # misc
 .DS_Store
