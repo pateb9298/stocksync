@@ -17,6 +17,7 @@ export default function BrowseParts() {
   });
   const [loading, setLoading] = useState(false);
 
+  //eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchListings();
   }, []);

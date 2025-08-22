@@ -122,7 +122,7 @@ def contact():
 @app.route('/add_part', methods=['POST'])
 @jwt_required()
 def add_part():
-    data = request.get_json()  # <-- changed from request.form
+    data = request.form  # <-- changed from request.form
     current_user_id = int(get_jwt_identity())
 
     # Optional image handling
@@ -329,10 +329,14 @@ def handle_exception(e):
 
 # Route for the home page
 # Renders index.html template when someone visits localhost:5000/
-@app.route('/')
-def index():
-    return render_template('index.html')
+from flask import send_from_directory
 
-
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(os.path.join(app.template_folder, path)):
+        return send_from_directory(app.template_folder, path)
+    else:
+        return send_from_directory(app.template_folder, 'index.html')
 
 
