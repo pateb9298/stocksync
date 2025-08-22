@@ -8,10 +8,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install netcat for wait-for-db.sh
-RUN apt-get update && apt-get install -y netcat-openbsd curl gnupg && rm -rf /var/lib/apt/lists/*
+# Install netcat, curl, gnupg, and other dependencies for Node.js setup
+RUN apt-get update && apt-get install -y \
+    netcat-openbsd \
+    curl \
+    gnupg \
+    ca-certificates \
+    lsb-release \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js and npm (for building React)
+# Install Node.js 18 and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
