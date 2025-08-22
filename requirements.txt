@@ -5,4 +5,4 @@ flask_sqlalchemy
 Werkzeug
 PyMySQL
 cryptography
-
+python-dotenv
