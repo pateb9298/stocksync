@@ -13,7 +13,7 @@ app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "dev-secret-key"
 jwt = JWTManager(app)
 
 # Enable CORS for React frontend
-CORS(app, supports_credentials=True, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
+CORS(app, supports_credentials=True, origins=["http://localhost:3000", "http://127.0.0.1:5000"])
 
 # Product Model
 class Product(db.Model):
