@@ -26,31 +26,34 @@ StockSync is a Python-based web platform that helps companies list, discover, an
 
 
 ## Prerequisites
-- Python 3.10+
-- Node.js 18+
-- MySQL (if running locally)
-- Docker & Docker Compose (if using Docker)
+- Docker & Docker Compose installed
 
 ## Environment Variables
-
-Create a env file in the project root:\
-
-env:
-- JWT_SECRET_KEY=super-secret-key
-- DB_USER=user
-- DB_PASSWORD=userpassword
-- DB_NAME=stocksync
-- DB_HOST=localhost
+Create a .env file in the project root. You can use the following as a starting point: \
+```
+JWT_SECRET_KEY=super-secret-key
+DB_USER=root
+DB_PASSWORD=rootpassword
+DB_NAME=stocksync
+DB_HOST=db
+DB_PORT=3306
+```
+IMPORTANT:
+- DB_HOST and DB_PORT must stay as db and 3306: this allows the backend container to connect to the MySQL container inside Docker.
+- DB_USER, DB_PASSWORD, DB_NAME can be changed, but if you do, make sure the same values are used in the db service in your docker-compose.yml.
+- JWT_SECRET_KEY can be changed freely; it is used for authentication security.
+- Users do not need to install MySQL locally: Docker will run the MySQL container automatically
 
 ## Running with Docker
 
 1. Build and Start Containers
 Make sure your .env is in the project root
-Run:
+- Build the containers
 ```
 docker-compose build
 ```
+- Start the containers
 ```
 docker-compose up
 ```
-Your frontend will now run at http://localhost:5000
+Your app will now run at http://localhost:5000
