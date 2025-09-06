@@ -14,10 +14,10 @@ StockSync is a Python-based web platform that helps companies list, discover, an
 - Add, edit, or delete your listings easily
 
 ## Tech Stack
-- Backend: Flask, Python, SQLAlchemy, JWT
-- Frontend: React, HTML/CSS, JavaScript
-- Database: MySQL (or Docker MySQL container)
-- Containerization (optional): Docker & Docker Compose
+- Backend: Python (Flask)
+- Frontend: React.js
+- Database: MySQL, SQLAlchemy
+- Containerization: Docker & Docker Compose
 
 ## Demo Screenshots
 ![Demo Part](https://github.com/pateb9298/stocksync/blob/main/StockSyncScreen1.jpeg)
