@@ -323,7 +323,7 @@ def delete_part():
 @app.errorhandler(Exception)
 def handle_exception(e):
     import traceback
-    print("🔥 ERROR TRACEBACK 🔥")
+    print("ERROR TRACEBACK")
     traceback.print_exc()  # prints full error in terminal
     return {"error": str(e)}, 500
 
